@@ -15,7 +15,7 @@ const ProfileCard = ({ profile }: ProfileCardProps) => {
 
   return (
     <motion.div
-      whileHover={{ y: -4, shadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}
+      whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}
       className="bg-white rounded-xl p-6 border border-gray-200 hover:border-blue-200 transition-all duration-200"
     >
       <Link to={`/profile/${profile.id}`}>

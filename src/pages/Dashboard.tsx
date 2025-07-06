@@ -5,6 +5,7 @@ import { Share, Plus, Edit } from "lucide-react";
 import Layout from "@/components/Layout";
 import SkillBadge from "@/components/SkillBadge";
 import ProjectCard from "@/components/ProjectCard";
+import AddProjectModal from "@/components/AddProjectModal";
 import { Profile, Project } from "@/types";
 
 const Dashboard = () => {
@@ -56,6 +57,21 @@ const Dashboard = () => {
   const updateProfile = (field: string, value: string) => {
     if (user) {
       const updatedUser = { ...user, [field]: value };
+      setUser(updatedUser);
+      localStorage.setItem("skillport_user", JSON.stringify(updatedUser));
+    }
+  };
+
+  const addProject = (projectData: Omit<Project, 'id'>) => {
+    if (user) {
+      const newProject: Project = {
+        id: Date.now().toString(), // Simple ID generation
+        ...projectData
+      };
+      const updatedUser = {
+        ...user,
+        projects: [...user.projects, newProject]
+      };
       setUser(updatedUser);
       localStorage.setItem("skillport_user", JSON.stringify(updatedUser));
     }
@@ -199,6 +215,13 @@ const Dashboard = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* Add Project Modal */}
+      <AddProjectModal
+        isOpen={showAddProject}
+        onClose={() => setShowAddProject(false)}
+        onAddProject={addProject}
+      />
     </Layout>
   );
 };
