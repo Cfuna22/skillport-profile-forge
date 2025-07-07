@@ -17,6 +17,7 @@ actor SkillPortBackend {
         projects: [Project];
         endorsements: [Endorsement];
         createdAt: Int;
+        lastUpdated: Int;
     };
 
     public type Project = {
@@ -38,6 +39,7 @@ actor SkillPortBackend {
 
     // Stable storage for persistence
     private stable var profileEntries: [(Principal, Profile)] = [];
+    private stable var lastUpdateTime: Int = 0;
     private var profiles = Map.HashMap<Principal, Profile>(0, Principal.equal, Principal.hash);
 
     // Initialize from stable storage
@@ -53,6 +55,11 @@ actor SkillPortBackend {
     // Helper function to generate unique IDs
     private func generateId(): Text {
         Int.toText(Time.now())
+    };
+
+    // Helper function to notify subscribers (updates last update time)
+    private func notifySubscribers() {
+        lastUpdateTime := Time.now();
     };
 
     // Public Functions
@@ -71,8 +78,10 @@ actor SkillPortBackend {
                     projects = [];
                     endorsements = [];
                     createdAt = Time.now();
+                    lastUpdated = Time.now();
                 };
                 profiles.put(caller, newProfile);
+                notifySubscribers();
                 #ok(true)
             };
         }
@@ -92,8 +101,10 @@ actor SkillPortBackend {
                     projects = profile.projects;
                     endorsements = profile.endorsements;
                     createdAt = profile.createdAt;
+                    lastUpdated = Time.now();
                 };
                 profiles.put(caller, updatedProfile);
+                notifySubscribers();
                 #ok(true)
             };
         }
@@ -119,8 +130,10 @@ actor SkillPortBackend {
                             projects = profile.projects;
                             endorsements = profile.endorsements;
                             createdAt = profile.createdAt;
+                            lastUpdated = Time.now();
                         };
                         profiles.put(caller, updatedProfile);
+                        notifySubscribers();
                         #ok(true)
                     };
                 }
@@ -143,8 +156,10 @@ actor SkillPortBackend {
                     projects = profile.projects;
                     endorsements = profile.endorsements;
                     createdAt = profile.createdAt;
+                    lastUpdated = Time.now();
                 };
                 profiles.put(caller, updatedProfile);
+                notifySubscribers();
                 #ok(true)
             };
         }
@@ -172,8 +187,10 @@ actor SkillPortBackend {
                     projects = newProjects;
                     endorsements = profile.endorsements;
                     createdAt = profile.createdAt;
+                    lastUpdated = Time.now();
                 };
                 profiles.put(caller, updatedProfile);
+                notifySubscribers();
                 #ok(true)
             };
         }
@@ -210,8 +227,10 @@ actor SkillPortBackend {
                     projects = profile.projects;
                     endorsements = newEndorsements;
                     createdAt = profile.createdAt;
+                    lastUpdated = Time.now();
                 };
                 profiles.put(targetPrincipal, updatedProfile);
+                notifySubscribers();
                 #ok(true)
             };
         }
@@ -224,6 +243,10 @@ actor SkillPortBackend {
 
     public query func getMyProfile(caller: Principal): async ?Profile {
         profiles.get(caller)
+    };
+
+    public query func getAllProfiles(): async [Profile] {
+        Iter.toArray(profiles.vals())
     };
 
     public query func listTopProfiles(): async [Profile] {
@@ -241,6 +264,10 @@ actor SkillPortBackend {
         Array.filter<Profile>(allProfiles, func(profile) {
             Array.find<Text>(profile.skills, func(s) { s == skill }) != null
         })
+    };
+
+    public query func getLastUpdateTime(): async Int {
+        lastUpdateTime
     };
 
     // Admin/Stats functions
