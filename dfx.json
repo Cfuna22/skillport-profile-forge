@@ -1,0 +1,24 @@
+
+{
+  "version": 1,
+  "canisters": {
+    "skillport_backend": {
+      "type": "motoko",
+      "main": "src/skillport_backend/main.mo"
+    },
+    "skillport_frontend": {
+      "type": "assets",
+      "source": ["dist/"]
+    },
+    "internet_identity": {
+      "type": "pull",
+      "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:4943",
+      "type": "ephemeral"
+    }
+  }
+}

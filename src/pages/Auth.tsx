@@ -1,17 +1,26 @@
 
 import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
-  const handleLogin = () => {
-    // Mock login - replace with Internet Identity integration
-    const mockUser = {
-      id: "user-1",
-      name: "Demo User",
-      bio: "This is a demo user account"
-    };
-    localStorage.setItem("skillport_user", JSON.stringify(mockUser));
-    window.location.href = "/dashboard";
+  const { isAuthenticated, login, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleLogin = async () => {
+    try {
+      await login();
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
   };
 
   return (
@@ -34,9 +43,10 @@ const Auth = () => {
 
             <button
               onClick={handleLogin}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Login with Internet Identity
+              {loading ? "Connecting..." : "Login with Internet Identity"}
             </button>
 
             <p className="text-xs text-gray-500 text-center mt-4">
