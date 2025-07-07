@@ -39,7 +39,7 @@ actor SkillPortBackend {
 
     // Stable storage for persistence
     private stable var profileEntries: [(Principal, Profile)] = [];
-    private stable var lastUpdateTime: Int = 0;
+    private stable var lastUpdateTime: Int = Time.now();
     private var profiles = Map.HashMap<Principal, Profile>(0, Principal.equal, Principal.hash);
 
     // Initialize from stable storage
@@ -266,6 +266,7 @@ actor SkillPortBackend {
         })
     };
 
+    // Real-time update timestamp query function
     public query func getLastUpdateTime(): async Int {
         lastUpdateTime
     };
