@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Profile, createActor } from '@/lib/canisters';
+import { dummyProfiles } from '@/utils/dummyData';
 
 const POLLING_INTERVAL = 10000; // 10 seconds
 
@@ -9,6 +10,7 @@ export const useRealTimeProfiles = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdateTime, setLastUpdateTime] = useState<number>(0);
+  const [usingDummyData, setUsingDummyData] = useState(false);
 
   const fetchProfiles = useCallback(async () => {
     try {
@@ -22,12 +24,21 @@ export const useRealTimeProfiles = () => {
         const allProfiles = await actor.getAllProfiles();
         setProfiles(allProfiles);
         setLastUpdateTime(Number(currentUpdateTime));
+        setUsingDummyData(false);
       }
       
       setError(null);
     } catch (err) {
-      console.error('Error fetching profiles:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch profiles');
+      console.error('Error fetching profiles from canister, falling back to dummy data:', err);
+      
+      // Fall back to dummy data when canister is not available
+      if (profiles.length === 0) {
+        console.log('Using dummy data as fallback');
+        setProfiles(dummyProfiles as Profile[]);
+        setUsingDummyData(true);
+      }
+      
+      setError(null); // Don't show error when using dummy data fallback
     } finally {
       setLoading(false);
     }
@@ -45,12 +56,25 @@ export const useRealTimeProfiles = () => {
         const topProfiles = await actor.listTopProfiles();
         setProfiles(topProfiles);
         setLastUpdateTime(Number(currentUpdateTime));
+        setUsingDummyData(false);
       }
       
       setError(null);
     } catch (err) {
-      console.error('Error fetching top profiles:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch top profiles');
+      console.error('Error fetching top profiles from canister, falling back to dummy data:', err);
+      
+      // Fall back to dummy data when canister is not available
+      if (profiles.length === 0) {
+        console.log('Using dummy data as fallback for top profiles');
+        // Sort dummy profiles by endorsement count for "top" profiles
+        const sortedDummyProfiles = [...dummyProfiles].sort((a, b) => 
+          b.endorsements.length - a.endorsements.length
+        );
+        setProfiles(sortedDummyProfiles as Profile[]);
+        setUsingDummyData(true);
+      }
+      
+      setError(null); // Don't show error when using dummy data fallback
     } finally {
       setLoading(false);
     }
@@ -61,12 +85,19 @@ export const useRealTimeProfiles = () => {
     // Initial fetch
     fetchProfiles();
 
-    // Set up interval for polling
-    const intervalId = setInterval(fetchProfiles, POLLING_INTERVAL);
+    // Set up interval for polling only if not using dummy data
+    let intervalId: NodeJS.Timeout | null = null;
+    if (!usingDummyData) {
+      intervalId = setInterval(fetchProfiles, POLLING_INTERVAL);
+    }
 
     // Cleanup interval on unmount
-    return () => clearInterval(intervalId);
-  }, [fetchProfiles]);
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [fetchProfiles, usingDummyData]);
 
   // Manual refresh function
   const refresh = useCallback(() => {
@@ -80,5 +111,6 @@ export const useRealTimeProfiles = () => {
     error,
     refresh,
     fetchTopProfiles,
+    usingDummyData,
   };
 };
