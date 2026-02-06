@@ -11,6 +11,8 @@
 
 **SkillPort**: The first decentralized professional portfolio platform built on Internet Computer Protocol (ICP)
 
+
+
 ---
 
 ## Slide 2: The Problem We're Solving
