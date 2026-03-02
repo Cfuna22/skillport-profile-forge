@@ -24,7 +24,7 @@ SkillPort addresses a critical problem in today's digital economy: **skill verif
 - **React 18** with TypeScript for type safety
 - **Tailwind CSS** for responsive, modern styling
 - **Framer Motion** for smooth animations
-- **React Query** for efficient data fetching
+- **React Query** for efficient data fetching and rendering
 - **shadcn/ui** for consistent, accessible components
 
 ### Backend Stack
