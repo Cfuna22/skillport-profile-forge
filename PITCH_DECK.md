@@ -25,6 +25,7 @@
 - 🏢 **$300B** annual cost of skills mismatch globally
 
 #### Current Solutions Fall Short:
+
 - ❌ Centralized platforms control your data
 - ❌ Self-reported skills lack credibility
 - ❌ No portable professional reputation
