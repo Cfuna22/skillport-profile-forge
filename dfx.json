@@ -10,6 +10,7 @@
       "type": "assets",
       "source": ["dist/"]
     },
+    
     "internet_identity": {
       "type": "pull",
       "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
